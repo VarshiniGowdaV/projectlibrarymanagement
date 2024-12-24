@@ -51,6 +51,7 @@ typedef enum
     EXIT
 } MenuOption;
 
+// Function to display the main menu
 void display_menu()
 {
     printf("\nLibrary Management System\n");
@@ -69,7 +70,7 @@ void display_menu()
     printf("3. Author Management:\n");
     printf("   9. Add Author\n");
     printf("   10. View Authors\n");
-    printf("   11.Sort Authors Alphabetically\n");
+    printf("   11. Sort Authors Alphabetically\n");
 
     printf("4. Sorting Operations:\n");
     printf("   12. Add Book Name for Sorting\n");
@@ -85,24 +86,63 @@ void display_menu()
     printf("Enter your choice: ");
 }
 
-int main_menu()
-{
+int main_menu() {
     int choice;
     int login_status;
+    int user_role;
+    int books_count = 0, students_count = 0, staff_count = 0;
 
-    book_name_head = load_books_from_file();
-    student_head = load_students_from_file();
-    staff_head = load_staff_from_file();
+    load_all_from_file(&books_count, &students_count, &staff_count);
 
-    login_status = authenticate_admin();
-    if (!login_status)
+    if (book_name_head == NULL)
     {
-        printf("Authentication failed. Exiting...\n");
-        return 0;
+        printf("No data loaded.\n");
+    } else {
+        printf("Data loaded successfully!\n");
+        printf("Books count: %d\n", books_count);
+        printf("Students count: %d\n", students_count);
+        printf("Staff count: %d\n", staff_count);
     }
 
-    do
+    // Prompt for user role (Admin, Staff, Student)
+    printf("Select your role to login:\n");
+    printf("1. Admin\n2. Staff\n3. Student\n");
+    printf("Enter your choice: ");
+    scanf("%d", &user_role);
+
+    if (user_role == 1)
     {
+        login_status = authenticate_admin();
+        if (!login_status)
+        {
+            printf("Authentication failed. Exiting...\n");
+            return 0;
+        }
+    }
+    else if (user_role == 2)
+    {
+        login_status = staff_login();
+        if (!login_status)
+        {
+            printf("Authentication failed. Exiting...\n");
+            return 0;
+        }
+    }
+    else if (user_role == 3)
+    {
+        login_status = student_login();
+        if (!login_status)
+        {
+            printf("Authentication failed. Exiting...\n");
+            return 0;
+        }
+    }
+    else
+    {
+        printf("Invalid choice. Exiting...\n");
+        return 0;
+    }
+    do {
         display_menu();
         if (scanf("%d", &choice) != 1)
         {
@@ -155,7 +195,8 @@ int main_menu()
             view_authors(author_head);
             break;
         case SORT_AUTHORS:
-            sort_authors(author_head);
+            merge_sort_author(&author_head);
+            printf("Authors sorted alphabetically.\n");
             break;
 
         case ADD_BOOK_NAME_SORTING:
@@ -169,6 +210,7 @@ int main_menu()
             break;
         }
         case VIEW_BOOKS_BY_NAME:
+            merge_sort_books(&book_name_head);
             view_books(book_name_head);
             break;
 
@@ -222,9 +264,7 @@ int main_menu()
 
         case EXIT:
             printf("Saving data and exiting the system...\n");
-            save_books_to_file(book_name_head);
-            save_students_to_file(student_head);
-            save_staff_to_file(staff_head);
+            save_all_to_file(book_name_head, student_head, staff_head);
             break;
         default:
             printf("Invalid choice. Please try again.\n");

@@ -2,54 +2,38 @@
 #include <stdlib.h>
 #include <string.h>
 #include "staff.h"
-
-struct staff* create_staff_node(const char* name, int id, const char* dept)
-{
-    struct staff* new_node = (struct staff*)malloc(sizeof(struct staff));
-    if (new_node == NULL)
-    {
-        printf("Memory allocation failed.\n");
-        exit(1);
-    }
-    strncpy(new_node->name, name, sizeof(new_node->name) - 1);
-    new_node->name[sizeof(new_node->name) - 1] = '\0';
-    new_node->id = id;
-    strncpy(new_node->dept, dept, sizeof(new_node->dept) - 1);
-    new_node->dept[sizeof(new_node->dept) - 1] = '\0';
-    new_node->next = NULL;
-    return new_node;
-}
 struct staff* add_staff(struct staff* head, const char* name, int id, const char* dept)
 {
-    struct staff* new_node = create_staff_node(name, id, dept);
-
-    if (head == NULL)
+    struct staff* new_staff = (struct staff*)malloc(sizeof(struct staff));
+    if (new_staff == NULL)
     {
-        printf("Staff added successfully.\n");
-        return new_node;
+        printf("Memory allocation failed.\n");
+        return head;
     }
 
-    struct staff* temp = head;
-    while (temp->next != NULL)
-    {
-        temp = temp->next;
-    }
-    temp->next = new_node;
-    printf("Staff added successfully.\n");
-    return head;
+    strncpy(new_staff->name, name, sizeof(new_staff->name) - 1);
+    new_staff->name[sizeof(new_staff->name) - 1] = '\0';
+    new_staff->id = id;
+    strncpy(new_staff->dept, dept, sizeof(new_staff->dept) - 1);
+    new_staff->dept[sizeof(new_staff->dept) - 1] = '\0';
+    new_staff->next = head;
+
+    return new_staff;
 }
 void view_staff(struct staff* head)
 {
-    if (head == NULL)
+    struct staff* current = head;
+
+    if (current == NULL)
     {
-        printf("No staff members in the list.\n");
+        printf("No staff members available.\n");
         return;
     }
 
-    struct staff* temp = head;
-    while (temp != NULL)
-    {
-        printf("Name: %s, ID: %d, Department: %s\n", temp->name, temp->id, temp->dept);
-        temp = temp->next;
+    printf("Staff Members:\n");
+    while (current != NULL) {
+        printf("Name: %s, ID: %d, Department: %s\n", current->name, current->id, current->dept);
+        current = current->next;
     }
 }
+

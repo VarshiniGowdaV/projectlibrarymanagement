@@ -6,146 +6,147 @@
 #include "student.h"
 #include "staff.h"
 
-
-void save_books_to_file(struct sortbybookname* head)
-{
-    FILE* file = fopen("books.txt", "w");
-    if (!file)
+void save_all_to_file(struct sortbybookname* book_head, struct student* student_head, struct staff* staff_head) {
+    FILE* file = fopen("project.txt", "w");
+    if (file == NULL)
     {
-        perror("Failed to open books file for writing");
+        perror("Failed to open file for writing");
         return;
     }
-    struct sortbybookname* current = head;
-    while (current) {
-        fwrite(current, sizeof(struct sortbybookname), 1, file);
-        current = current->next;
+    struct sortbybookname* current_book = book_head;
+    while (current_book) {
+        size_t written = fwrite(current_book, sizeof(struct sortbybookname), 1, file);
+        if (written != 1) {
+            perror("Error writing book data to file");
+            fclose(file);
+            return;
+        }
+        current_book = current_book->next;
     }
+    struct student* current_student = student_head;
+    while (current_student)
+    {
+        size_t written = fwrite(current_student, sizeof(struct student), 1, file);
+        if (written != 1)
+        {
+            perror("Error writing student data to file");
+            fclose(file);
+            return;
+        }
+        current_student = current_student->next;
+    }
+    struct staff* current_staff = staff_head;
+    while (current_staff)
+    {
+        size_t written = fwrite(current_staff, sizeof(struct staff), 1, file);
+        if (written != 1)
+        {
+            perror("Error writing staff data to file");
+            fclose(file);
+            return;
+        }
+        current_staff = current_staff->next;
+    }
+
     fclose(file);
+    printf("Data has been successfully saved to project.txt\n");
 }
 
-struct sortbybookname* load_books_from_file()
-{
-    FILE* file = fopen("books.txt", "r");
+
+
+void load_all_from_file(int* books_count, int* students_count, int* staff_count) {
+    FILE* file = fopen("project.txt", "r");
     if (!file)
     {
-        perror("Failed to open books file for reading");
-        return NULL;
+        perror("Failed to open file for reading");
+        return;
     }
-    struct sortbybookname* head = NULL;
-    struct sortbybookname* current = NULL;
-    struct sortbybookname temp;
-    while (fread(&temp, sizeof(struct sortbybookname), 1, file))
+
+    struct sortbybookname* book_head = NULL;
+    struct student* student_head = NULL;
+    struct staff* staff_head = NULL;
+
+    struct sortbybookname* current_book = NULL;
+    struct student* current_student = NULL;
+    struct staff* current_staff = NULL;
+
+    struct sortbybookname temp_book;
+    struct student temp_student;
+    struct staff temp_staff;
+
+    *books_count = 0;
+    while (fread(&temp_book, sizeof(struct sortbybookname), 1, file))
     {
-        struct sortbybookname* new_node = malloc(sizeof(struct sortbybookname));
-        *new_node = temp;
-        new_node->next = NULL;
-        if (!head)
+        struct sortbybookname* new_book = malloc(sizeof(struct sortbybookname));
+        if (new_book == NULL)
         {
-            head = new_node;
-            current = head;
+            perror("Failed to allocate memory for new book");
+            fclose(file);
+            return;
+        }
+        *new_book = temp_book;
+        new_book->next = NULL;
+        if (!book_head)
+        {
+            book_head = new_book;
+            current_book = book_head;
         }
         else
         {
-            current->next = new_node;
-            current = new_node;
+            current_book->next = new_book;
+            current_book = new_book;
         }
+        (*books_count)++;
     }
-    fclose(file);
-    return head;
-}
 
-void save_students_to_file(struct student* head)
-{
-    FILE* file = fopen("students.txt", "w");
-    if (!file)
+    *students_count = 0;
+    while (fread(&temp_student, sizeof(struct student), 1, file))
     {
-        perror("Failed to open students file for writing");
-        return;
-    }
-    struct student* current = head;
-    while (current)
-    {
-        fwrite(current, sizeof(struct student), 1, file);
-        current = current->next;
-    }
-    fclose(file);
-}
-
-struct student* load_students_from_file()
-{
-    FILE* file = fopen("students.txt", "r");
-    if (!file)
-    {
-        perror("Failed to open students file for reading");
-        return NULL;
-    }
-    struct student* head = NULL;
-    struct student* current = NULL;
-    struct student temp;
-    while (fread(&temp, sizeof(struct student), 1, file))
-    {
-        struct student* new_node = malloc(sizeof(struct student));
-        *new_node = temp;
-        new_node->next = NULL;
-        if (!head)
+        struct student* new_student = malloc(sizeof(struct student));
+        if (new_student == NULL)
         {
-            head = new_node;
-            current = head;
+            perror("Failed to allocate memory for new student");
+            fclose(file);
+            return;
+        }
+        *new_student = temp_student;
+        new_student->next = NULL;
+        if (!student_head)
+        {
+            student_head = new_student;
+            current_student = student_head;
         }
         else
         {
-            current->next = new_node;
-            current = new_node;
+            current_student->next = new_student;
+            current_student = new_student;
         }
+        (*students_count)++;
     }
+
+    *staff_count = 0;
+    while (fread(&temp_staff, sizeof(struct staff), 1, file))
+    {
+        struct staff* new_staff = malloc(sizeof(struct staff));
+        if (new_staff == NULL)
+        {
+            perror("Failed to allocate memory for new staff");
+            fclose(file);
+            return;
+        }
+        *new_staff = temp_staff;
+        new_staff->next = NULL;
+        if (!staff_head)
+        {
+            staff_head = new_staff;
+            current_staff = staff_head;
+        } else {
+            current_staff->next = new_staff;
+            current_staff = new_staff;
+        }
+        (*staff_count)++;
+    }
+
     fclose(file);
-    return head;
 }
 
-void save_staff_to_file(struct staff* head)
-{
-    FILE* file = fopen("staff.txt", "w");
-    if (!file)
-    {
-        perror("Failed to open staff file for writing");
-        return;
-    }
-    struct staff* current = head;
-    while (current)
-    {
-        fwrite(current, sizeof(struct staff), 1, file);
-        current = current->next;
-    }
-    fclose(file);
-}
-
-struct staff* load_staff_from_file()
-{
-    FILE* file = fopen("staff.txt", "r");
-    if (!file)
-    {
-        perror("Failed to open staff file for reading");
-        return NULL;
-    }
-    struct staff* head = NULL;
-    struct staff* current = NULL;
-    struct staff temp;
-    while (fread(&temp, sizeof(struct staff), 1, file))
-    {
-        struct staff* new_node = malloc(sizeof(struct staff));
-        *new_node = temp;
-        new_node->next = NULL;
-        if (!head)
-        {
-            head = new_node;
-            current = head;
-        }
-        else
-        {
-            current->next = new_node;
-            current = new_node;
-        }
-    }
-    fclose(file);
-    return head;
-}

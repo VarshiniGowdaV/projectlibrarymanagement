@@ -1,4 +1,3 @@
-// returnedbook.h
 #ifndef RETURNEDBOOK_H
 #define RETURNEDBOOK_H
 
@@ -10,7 +9,7 @@ struct returnedbook {
     struct returnedbook* next;
 };
 
-extern struct returnedbook* head;  // Declare head as extern
+extern struct returnedbook* head;
 
 int record_returned_book();
 void print_returned_books();

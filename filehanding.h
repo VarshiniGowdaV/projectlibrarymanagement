@@ -1,17 +1,14 @@
-#ifndef FILEHANDLING_H
-#define FILEHANDLING_H
+#ifndef FILEHANDING_H
+#define FILEHANDING_H
 
 #include "sortbybookname.h"
 #include "student.h"
 #include "staff.h"
 
-struct sortbybookname* load_books_from_file();
-void save_books_to_file(struct sortbybookname* head);
+// Function to save all data to a file
+void save_all_to_file(struct sortbybookname* book_head, struct student* student_head, struct staff* staff_head);
 
-struct student* load_students_from_file();
-void save_students_to_file(struct student* head);
+// Function to load all data from a file
+void load_all_from_file(int* books_count, int* students_count, int* staff_count);
 
-struct staff* load_staff_from_file();
-void save_staff_to_file(struct staff* head);
-
-#endif // FILEHANDLING_H
+#endif // FILEHANDING_H
